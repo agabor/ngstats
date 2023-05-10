@@ -18,7 +18,7 @@ for LOG_FILE in $(ls -vr "$LOG_DIR"/access.log*); do
 
     for i in "${!DATES[@]}"; do
             DATE="${DATES[$i]}"
-            VISITORS_THIS_DAY=$(eval "$CMD" | awk -v date="$DATE" '$4 ~ date {print $1}' | sort -u | wc -l)
+            VISITORS_THIS_DAY=$(eval "$CMD" | awk -v date="$DATE" '!/Googlebot|Applebot|bingbot|AhrefsBot/ && $4 ~ date {print $1}' | sort -u | wc -l)
             VISITORS=$((VISITORS + VISITORS_THIS_DAY))
             if [ $i -eq 0 ] || [ $i -ne $((${#DATES[@]} - 1)) ]; then
                     if [[ $CARRY == 0 ]]; then
