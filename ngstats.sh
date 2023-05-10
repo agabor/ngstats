@@ -6,18 +6,6 @@ CARRY=0
 CARRY_DATE=""
 echo "date, visitor_count"
 
-bots=("Googlebot" "DuckDuckGo-Favicons-Bot" "MJ12bot" "Applebot" "bingbot" "AhrefsBot" "GeedoBot" "PetalBot" "AdsBot-Google" "CensysInspect" "Expanse" "google-xrawler" "AdBot" "webmeup-crawler.com" "crawler_eb_germany_2.0" "SenutoBot" "DotBot" "SiteAuditBot" "DataForSeoBot" "SemrushBot" "SeznamBot")
-
-# Initialize the result string
-EXCLUDE=""
-
-# Iterate over the array and append each bot with "-e" to the result string
-for bot in "${bots[@]}"
-do
-    EXCLUDE+=" -e $bot"
-done
-
-
 for LOG_FILE in $(ls -vr "$LOG_DIR"/access.log*); do
 
     if [[ "$LOG_FILE" == *.gz ]]; then
@@ -30,7 +18,7 @@ for LOG_FILE in $(ls -vr "$LOG_DIR"/access.log*); do
 
     for i in "${!DATES[@]}"; do
             DATE="${DATES[$i]}"
-            VISITORS_THIS_DAY=$(eval "$CMD" | grep $DATE | grep -E 'GET (/termek/.*|/) HTTP/[21]\.[01]" 2.*' | grep -v $EXCLUDE -e $1 | wc -l)
+            VISITORS_THIS_DAY=$(eval "$CMD" | grep $DATE | grep -E 'GET (/termek/.*|/) HTTP/[21]\.[01]" 2.*' | grep -i -v -e bot -e crawler -e xrawler -e $1 | wc -l)
             VISITORS=$((VISITORS + VISITORS_THIS_DAY))
             if [ $i -eq 0 ] || [ $i -ne $((${#DATES[@]} - 1)) ]; then
                     if [[ $CARRY == 0 ]]; then
