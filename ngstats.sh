@@ -6,7 +6,7 @@ CARRY=0
 CARRY_DATE=""
 echo "date, visitor_count"
 
-bots=("Googlebot" "DuckDuckGo-Favicons-Bot" "MJ12bot" "Applebot" "bingbot" "AhrefsBot" "GeedoBot" "PetalBot" "AdsBot-Google" "CensysInspect" "Expanse" "google-xrawler")
+bots=("Googlebot" "DuckDuckGo-Favicons-Bot" "MJ12bot" "Applebot" "bingbot" "AhrefsBot" "GeedoBot" "PetalBot" "AdsBot-Google" "CensysInspect" "Expanse" "google-xrawler" "AdBot" "webmeup-crawler.com")
 
 # Initialize the result string
 EXCLUDE=""
