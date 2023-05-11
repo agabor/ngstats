@@ -1,18 +1,12 @@
 #!/bin/bash
-  
+
 LOG_DIR="/var/log/nginx"
 
 bots=()
+polite_bots=()
 
-for LOG_FILE in $(ls -vr "$LOG_DIR"/access.log*); do
-
-    if [[ "$LOG_FILE" == *.gz ]]; then
-        CMD="zcat $LOG_FILE"
-    else
-        CMD="cat $LOG_FILE"
-    fi
-    #echo $LOG_FILE
-    bots=("${bots[@]}" $(eval "$CMD" |
+function get_bots {
+        ibots=$(eval "$1" |
             awk -F'"' '/GET/ {print $6}' |
             grep -E -i '(bot|crawler|xcrawler|scan)' |
             awk -F 'compatible;' '{print $NF}' |
@@ -30,12 +24,48 @@ for LOG_FILE in $(ls -vr "$LOG_DIR"/access.log*); do
             sed -r 's/Mac OS X ([0-9]+_){2}[0-9]+//g' |
             sed -r 's/Chrome\/([0-9]+\.){3}[0-9]+//g' |
             sed 's/http/ http/g' |
-            sed 's/[;()\+]//g' |
-            sed 's/[ \t]*$//' |
-            sed 's/^[ \t]*//' |
-            sed 's/[ \t]+/ /' |
+            sed -r 's/[;()\+]//g' |
+            sed -r 's/[ \t]*$//' |
+            sed -r 's/^[ \t]*//' |
+            sed -r 's/[ \t]+/ /' |
             sort -u |
-            sed 's/ /===/g'))
+            sed 's/ /===/g')
+}
+
+for LOG_FILE in $(ls -vr "$LOG_DIR"/access.log*); do
+
+    if [[ "$LOG_FILE" == *.gz ]]; then
+        CMD="zcat $LOG_FILE"
+    else
+        CMD="cat $LOG_FILE"
+    fi
+    echo "reading $LOG_FILE"
+    get_bots "$CMD"
+    bots=("${bots[@]}" $ibots)
+    get_bots "$CMD | grep robots.txt"
+    polite_bots=("${polite_bots[@]}" $ibots)
 done
 
-for bot in "${bots[@]}"; do echo $bot; done | sort -u | sed 's/===/ /g'
+for bot in "${bots[@]}"; do
+        echo $bot;
+done | sed 's/===/ /g' | sort -u > bots_all.txt
+ 
+
+for bot in "${polite_bots[@]}"; do
+        echo $bot;
+done | sed 's/===/ /g' | sort -u > bots_polite.txt
+
+comm -23 bots_all.txt bots_polite.txt --check-order > bots_impolite.txt
+
+echo ""
+echo ""
+echo "Polite Bots (reading robots.txt):"
+echo "================================="
+echo ""
+cat bots_polite.txt
+echo ""
+echo ""
+echo "Impolite Bots (not reading robots.txt):"
+echo "======================================="
+echo ""
+cat bots_impolite.txt
