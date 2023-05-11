@@ -1,7 +1,6 @@
 #!/bin/bash
 
 LOG_DIR="/var/log/nginx"
-
 bots=()
 polite_bots=()
 
@@ -33,7 +32,6 @@ function get_bots {
 }
 
 for LOG_FILE in $(ls -vr "$LOG_DIR"/access.log*); do
-
     if [[ "$LOG_FILE" == *.gz ]]; then
         CMD="zcat $LOG_FILE"
     else
@@ -49,7 +47,6 @@ done
 for bot in "${bots[@]}"; do
         echo $bot;
 done | sed 's/===/ /g' | sort -u > bots_all.txt
- 
 
 for bot in "${polite_bots[@]}"; do
         echo $bot;
